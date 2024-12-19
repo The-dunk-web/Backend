@@ -4,10 +4,15 @@ import crypto from "crypto";
 
 export const signup = async (req, res) => {
   const { firstName, lastName, password, email, phone } = req.body;
-
   try {
     if (!email || !password || !firstName || !lastName || !phone) {
       throw new Error("All fields are required");
+    }
+
+    let profilePictureUrl = null;
+
+    if (req.file) {
+      profilePictureUrl = req.file.path;
     }
 
     const userAlreadyExists = await prisma.User.findUnique({
@@ -29,6 +34,7 @@ export const signup = async (req, res) => {
         firstName,
         lastName,
         phone,
+        profile: profilePictureUrl,
       },
     });
 
