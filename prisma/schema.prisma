@@ -8,21 +8,23 @@ datasource db {
 }
 
 model User {
-  id            String     @id @default(uuid())
-  firstName     String
-  lastName      String
-  profile       String?
-  phone         String
-  email         String     @unique
-  password      String
-  verified      Boolean    @default(false)
-  balance       Float      @default(0)
-  visaCards     VisaCard[]
-  products      Product[]
-  services      Service[]
-  articles      Article[]
-  reviews       Review[]
-  likedArticles Article[]  @relation("UserLikedArticles")
+  id                   String     @id @default(uuid())
+  firstName            String
+  lastName             String
+  profile              String?
+  phone                String
+  email                String     @unique
+  password             String
+  verified             Boolean    @default(false)
+  balance              Float      @default(0)
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+  visaCards            VisaCard[]
+  products             Product[]
+  services             Service[]
+  articles             Article[]
+  reviews              Review[]
+  likedArticles        Article[]  @relation("UserLikedArticles")
 }
 
 model VisaCard {
