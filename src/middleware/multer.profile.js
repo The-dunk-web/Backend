@@ -2,13 +2,13 @@ import multer from "multer";
 
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { v2 as cloudinary } from "cloudinary";
-import "../config/cloudinary.config.js"; // Ensure this path is correct
+import "../config/cloudinary.config.js";
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "profile_pictures", // Folder name in Cloudinary
-    allowed_formats: ["jpg", "jpeg", "png"], // Accepted file formats
+    folder: "profile_pictures",
+    allowed_formats: ["jpg", "jpeg", "png"],
   },
 });
 
