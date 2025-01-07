@@ -75,6 +75,7 @@ model Article {
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
   likedBy   User[]   @relation("UserLikedArticles")
+  likes     Int      @default(0)
 }
 
 model Service {
