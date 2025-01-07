@@ -230,3 +230,22 @@ export const finishOrder = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+export const getMyOrders = async (req, res) => {
+  try {
+    const orders = await prisma.order.findMany({
+      where: { userId: req.userId },
+      include: { product: true },
+    });
+
+    if (!orders.length) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No orders found." });
+    }
+
+    res.status(200).json({ success: true, orders });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
