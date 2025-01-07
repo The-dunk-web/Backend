@@ -4,6 +4,7 @@ import productRouter from "./product.routes.js";
 import orderRouter from "./order.routes.js";
 import articleRouter from "./article.routes.js";
 import serviceRouter from "./service.routes.js";
+import reviewRouter from "./review.routes.js";
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.use("/products", productRouter);
 router.use("/orders", orderRouter);
 router.use("/articles", articleRouter);
 router.use("/services", serviceRouter);
+router.use("/reviews", reviewRouter);
 
 export default router;

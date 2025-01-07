@@ -37,10 +37,12 @@ export const getAllServices = async (req, res) => {
     const services = await prisma.service.findMany({
       include: {
         user: {
-          select: { firstName: true, lastName: true },
+          select: { firstName: true, lastName: true, profile: true },
         },
         reviews: {
-          select: { rating: true, comment: true },
+          select: {
+            rating: true,
+          },
         },
       },
     });
@@ -51,7 +53,22 @@ export const getAllServices = async (req, res) => {
         .json({ success: false, message: "No services found." });
     }
 
-    res.status(200).json({ success: true, services });
+    const servicesWithRatings = services.map((service) => {
+      const overallRating =
+        service.reviews.length > 0
+          ? (
+              service.reviews.reduce((sum, review) => sum + review.rating, 0) /
+              service.reviews.length
+            ).toFixed(1)
+          : 0;
+
+      return {
+        ...service,
+        overallRating: parseFloat(overallRating),
+      };
+    });
+
+    res.status(200).json({ success: true, servicesWithRatings });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
@@ -66,10 +83,24 @@ export const getServiceById = async (req, res) => {
       where: { id },
       include: {
         user: {
-          select: { firstName: true, lastName: true },
+          select: {
+            firstName: true,
+            lastName: true,
+            profile: true,
+          },
         },
         reviews: {
-          select: { rating: true, comment: true },
+          select: {
+            rating: true,
+            comment: true,
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profile: true,
+              },
+            },
+          },
         },
       },
     });
@@ -80,7 +111,21 @@ export const getServiceById = async (req, res) => {
         .json({ success: false, message: "Service not found." });
     }
 
-    res.status(200).json({ success: true, service });
+    const overallRating =
+      service.reviews.length > 0
+        ? (
+            service.reviews.reduce((sum, review) => sum + review.rating, 0) /
+            service.reviews.length
+          ).toFixed(1)
+        : 0;
+
+    res.status(200).json({
+      success: true,
+      service: {
+        ...service,
+        overallRating: parseFloat(overallRating),
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
@@ -109,6 +154,13 @@ export const updateService = async (req, res) => {
 
     if (images.length === 0) {
       images = service.images;
+    }
+
+    if (service.userId !== req.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized to update this service.",
+      });
     }
 
     const updatedService = await prisma.service.update({
@@ -143,12 +195,10 @@ export const deleteService = async (req, res) => {
     }
 
     if (service.userId !== req.userId) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          message: "You are not authorized to delete this service.",
-        });
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized to delete this service.",
+      });
     }
 
     await prisma.service.delete({
