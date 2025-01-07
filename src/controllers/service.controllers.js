@@ -156,6 +156,13 @@ export const updateService = async (req, res) => {
       images = service.images;
     }
 
+    if (service.userId !== req.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized to update this service.",
+      });
+    }
+
     const updatedService = await prisma.service.update({
       where: { id },
       data: {
