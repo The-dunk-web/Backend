@@ -213,3 +213,75 @@ export const changePassword = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+export const editProfile = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { firstName, lastName, phone } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+
+    let profilePictureUrl = null;
+
+    if (req.file) {
+      profilePictureUrl = req.file.path;
+    }
+
+    if (profilePictureUrl === null) {
+      profilePictureUrl = user.profile;
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        firstName: firstName || user.firstName,
+        lastName: lastName || user.lastName,
+        phone: phone || user.phone,
+        profile: profilePictureUrl,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    console.log("Error in editProfile ", error);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const getProfile = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        ...user,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    console.log("Error in getProfile ", error);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
