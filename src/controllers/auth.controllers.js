@@ -95,6 +95,11 @@ export const logout = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email is required" });
+    }
     const user = await prisma.user.findUnique({
       where: { email: email },
     });
@@ -177,8 +182,11 @@ export const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
     const userId = req.userId;
+    if (!userId) {
+      return res.status(400).json({ success: false, message: "Unauthorized" });
+    }
 
-    const user = await prisma.User.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: userId },
     });
 
