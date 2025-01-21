@@ -1,4 +1,4 @@
-import prisma from "../db/connectDB.js";
+import prisma from '../db/connectDB.js';
 
 export const createOrder = async (req, res) => {
   try {
@@ -17,7 +17,7 @@ export const createOrder = async (req, res) => {
     if (!user.visaCards.length) {
       return res.status(400).json({
         success: false,
-        message: "No connected card found. Please connect a card.",
+        message: 'No connected card found. Please connect a card.',
       });
     }
 
@@ -28,21 +28,21 @@ export const createOrder = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found.",
+        message: 'Product not found.',
       });
     }
 
     if (user.balance < product.price * quantity) {
       return res.status(400).json({
         success: false,
-        message: "Insufficient balance. Connect your crypto wallet.",
+        message: 'Insufficient balance. Connect your crypto wallet.',
       });
     }
 
     if (product.quantity < quantity) {
       return res.status(400).json({
         success: false,
-        message: "Insufficient quantity.",
+        message: 'Insufficient quantity.',
       });
     }
 
@@ -82,7 +82,7 @@ export const connectVisaCard = async (req, res) => {
     if (!cardNumber || !expiryDate || !cvv) {
       return res.status(400).json({
         success: false,
-        message: "Card number, expiry date, and CVV are required.",
+        message: 'Card number, expiry date, and CVV are required.',
       });
     }
 
@@ -93,7 +93,7 @@ export const connectVisaCard = async (req, res) => {
     if (existingCard) {
       return res.status(400).json({
         success: false,
-        message: "This card is already connected to another account.",
+        message: 'This card is already connected to another account.',
       });
     }
 
@@ -108,7 +108,7 @@ export const connectVisaCard = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Visa card connected successfully.",
+      message: 'Visa card connected successfully.',
       card,
     });
   } catch (error) {
@@ -123,7 +123,7 @@ export const connectCryptoWallet = async (req, res) => {
     if (!walletAddress) {
       return res.status(400).json({
         success: false,
-        message: "Wallet address is required.",
+        message: 'Wallet address is required.',
       });
     }
 
@@ -161,13 +161,13 @@ export const cancelOrder = async (req, res) => {
     if (!order || order.userId !== req.userId) {
       return res
         .status(404)
-        .json({ success: false, message: "Order not found." });
+        .json({ success: false, message: 'Order not found.' });
     }
 
-    if (order.status !== "pending") {
+    if (order.status !== 'pending') {
       return res.status(400).json({
         success: false,
-        message: "Only pending orders can be canceled.",
+        message: 'Only pending orders can be canceled.',
       });
     }
 
@@ -175,12 +175,12 @@ export const cancelOrder = async (req, res) => {
 
     await prisma.order.update({
       where: { id },
-      data: { status: "canceled" },
+      data: { status: 'canceled' },
     });
 
     res
       .status(200)
-      .json({ success: true, message: "Order canceled successfully." });
+      .json({ success: true, message: 'Order canceled successfully.' });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -197,13 +197,13 @@ export const finishOrder = async (req, res) => {
     if (!order || order.userId !== req.userId) {
       return res
         .status(404)
-        .json({ success: false, message: "Order not found." });
+        .json({ success: false, message: 'Order not found.' });
     }
 
-    if (order.status !== "pending") {
+    if (order.status !== 'pending') {
       return res.status(400).json({
         success: false,
-        message: "Only pending orders can be finished.",
+        message: 'Only pending orders can be finished.',
       });
     }
 
@@ -211,7 +211,7 @@ export const finishOrder = async (req, res) => {
     await prisma.$transaction([
       prisma.order.update({
         where: { id },
-        data: { status: "finished" },
+        data: { status: 'finished' },
       }),
     ]);
     const product = await prisma.product.findUnique({
@@ -225,7 +225,7 @@ export const finishOrder = async (req, res) => {
 
     res
       .status(200)
-      .json({ success: true, message: "Order completed successfully." });
+      .json({ success: true, message: 'Order completed successfully.' });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -241,10 +241,31 @@ export const getMyOrders = async (req, res) => {
     if (!orders.length) {
       return res
         .status(404)
-        .json({ success: false, message: "No orders found." });
+        .json({ success: false, message: 'No orders found.' });
     }
 
     res.status(200).json({ success: true, orders });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const getOrderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: { product: true },
+    });
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Order not found' });
+    }
+
+    res.status(200).json({ success: true, order });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
