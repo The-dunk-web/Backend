@@ -1,5 +1,5 @@
 import express from "express";
-import { sendEmails } from "../controllers/redRoom.controllers";
+import { sendEmails } from "../controllers/redRoom.controllers.js";
 
 const router = express.Router();
 

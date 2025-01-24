@@ -1,7 +1,7 @@
 import prisma from "../db/connectDB.js";
 import { sendRedRoomAnnouncementEmail } from "../utils/sendEmails.js";
 
-const sendEmails = async (req, res) => {
+export const sendEmails = async (req, res) => {
   try {
     const users = await prisma.user.findMany();
 
@@ -14,5 +14,3 @@ const sendEmails = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
-
-export { sendEmails };
