@@ -247,7 +247,7 @@ export const editProfile = async (req, res) => {
       profilePictureUrl = user.profile;
     }
 
-    await prisma.user.update({
+    const updated_user = await prisma.user.update({
       where: { id: userId },
       data: {
         firstName: firstName || user.firstName,
@@ -255,10 +255,12 @@ export const editProfile = async (req, res) => {
         phone: phone || user.phone,
         profile: profilePictureUrl,
       },
+      include: { visaCards: true },
     });
 
     res.status(200).json({
       success: true,
+      user: { ...updated_user, password: undefined }, // password is not sent
       message: "Profile updated successfully",
     });
   } catch (error) {
@@ -273,6 +275,7 @@ export const getProfile = async (req, res) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: { visaCards: true },
     });
 
     if (!user) {
