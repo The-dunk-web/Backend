@@ -51,6 +51,13 @@ export const updateProduct = async (req, res) => {
       photos = product.photos;
     }
 
+    if (product.userId !== req.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized to update this product",
+      });
+    }
+
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
@@ -110,6 +117,13 @@ export const deleteProduct = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Product not found" });
+    }
+
+    if (product.userId !== req.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized to delete this product",
+      });
     }
 
     await prisma.product.delete({
